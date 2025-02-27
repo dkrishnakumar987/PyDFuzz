@@ -2,17 +2,16 @@
 name = "pydfuzz"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "Krishna Kumar D",email = "dkrishnakumar987@gmail.com"}
-]
+authors = [{ name = "Krishna Kumar D", email = "dkrishnakumar987@gmail.com" }]
 readme = "README.md"
-requires-python = ">=3.12"
-dependencies = [
-]
+requires-python = ">=3.12,<4.0"
+dependencies = ["loguru (>=0.7.3,<0.8.0)", "pdfrw (>=0.4,<0.5)"]
 
 [tool.poetry]
-packages = [{include = "pydfuzz", from = "src"}]
+packages = [{ include = "pydfuzz", from = "src" }]
 
+[tool.poetry.scripts]
+runtests = "tests.run_tests:main"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
