@@ -12,6 +12,7 @@ packages = [{ include = "pydfuzz", from = "src" }]
 
 [tool.poetry.scripts]
 runtests = "tests.run_tests:main"
+pydfuzz-cli = "pydfuzz.cli:main"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
