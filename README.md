@@ -13,6 +13,7 @@ The project focuses on different corruption strategies to thoroughly test PDF pa
 - JavaScript injection
 - Content stream corruption 
 - Cross-reference (xref) table corruption
+- Deep Fuzzing using AFL++ or WinAFL
 
 ## Features
 

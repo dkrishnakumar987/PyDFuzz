@@ -170,8 +170,13 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
+#VSCode configuration
+.vscode
 
 # Custom gitignore
 logs/*
 input_pdfs
 generated_pdfs
+fuzz_build
+output
+output_crashes

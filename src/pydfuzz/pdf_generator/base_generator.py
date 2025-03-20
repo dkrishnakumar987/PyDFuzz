@@ -18,7 +18,7 @@ class BasePDFGenerator(abc.ABC):
     def __init__(self):
         # Locate the project root (assumed to be two levels above this file)
         project_root = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "..")
+            os.path.join(os.path.dirname(__file__), "..", "..", "..")
         )
         # Initialize input directory for seed PDFs
         self.input_dir = os.path.join(project_root, "input_pdfs")
