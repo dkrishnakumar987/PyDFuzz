@@ -184,7 +184,7 @@ class PyDFuzzGUI(ctk.CTk):
         timeout_label.grid(row=2, column=0, padx=10, pady=10, sticky="w")
 
         self.timeout_entry = ctk.CTkEntry(frame, width=100)
-        self.timeout_entry.insert(0, "60")
+        self.timeout_entry.insert(0, "100")
         self.timeout_entry.grid(row=2, column=1, padx=10, pady=10, sticky="w")
 
         # Fuzzing buttons
