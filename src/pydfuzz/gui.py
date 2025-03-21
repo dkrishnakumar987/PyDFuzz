@@ -1,14 +1,15 @@
 import os
-import tkinter as tk
 import threading
-import customtkinter as ctk
+import tkinter as tk
 from tkinter import filedialog
 
-from pydfuzz.logger import logger
-from pydfuzz.fuzzing_manager import run_fuzzer
-from pydfuzz.fuzz_executor import FuzzExecutor
+import customtkinter as ctk
+
 from pydfuzz.crash_handler import CrashHandler
 from pydfuzz.debugger import FuzzDebugger
+from pydfuzz.fuzz_executor import FuzzExecutor
+from pydfuzz.fuzzing_manager import run_fuzzer
+from pydfuzz.logger import logger
 
 # Set appearance mode and default color theme
 ctk.set_appearance_mode("System")
@@ -227,9 +228,26 @@ class PyDFuzzGUI(ctk.CTk):
         )
         title.grid(row=0, column=0, padx=20, pady=(20, 10))
 
+        # Crashes directory selection
+        dir_frame = ctk.CTkFrame(tab)
+        dir_frame.grid(row=1, column=0, padx=20, pady=10, sticky="ew")
+        dir_frame.grid_columnconfigure(1, weight=1)
+
+        dir_label = ctk.CTkLabel(dir_frame, text="Crashes directory:")
+        dir_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+
+        self.crashes_dir_entry = ctk.CTkEntry(dir_frame, width=300)
+        self.crashes_dir_entry.insert(0, self.fuzz_executor.output_crashes_dir)
+        self.crashes_dir_entry.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
+
+        dir_button = ctk.CTkButton(
+            dir_frame, text="Browse", width=100, command=self.browse_crashes_dir
+        )
+        dir_button.grid(row=0, column=2, padx=10, pady=10)
+
         # Control frame
         control_frame = ctk.CTkFrame(tab)
-        control_frame.grid(row=1, column=0, padx=20, pady=10, sticky="ew")
+        control_frame.grid(row=2, column=0, padx=20, pady=10, sticky="ew")
 
         refresh_button = ctk.CTkButton(
             control_frame, text="Refresh Crashes", command=self.refresh_crashes
@@ -254,20 +272,36 @@ class PyDFuzzGUI(ctk.CTk):
 
         # Crashes list
         self.crashes_frame = ctk.CTkScrollableFrame(tab, height=200)
-        self.crashes_frame.grid(row=2, column=0, padx=20, pady=10, sticky="nsew")
+        self.crashes_frame.grid(row=3, column=0, padx=20, pady=10, sticky="nsew")
 
         # Analysis results
         results_label = ctk.CTkLabel(tab, text="Analysis Results:")
-        results_label.grid(row=3, column=0, padx=20, pady=(20, 5), sticky="w")
+        results_label.grid(row=4, column=0, padx=20, pady=(20, 5), sticky="w")
 
         self.crash_analysis = ctk.CTkTextbox(tab, height=150)
-        self.crash_analysis.grid(row=4, column=0, padx=20, pady=(0, 20), sticky="nsew")
+        self.crash_analysis.grid(row=5, column=0, padx=20, pady=(0, 20), sticky="nsew")
 
         # Initialize
         self.selected_crash = None
         self.crashes_list = []
 
     # Utility methods
+    def browse_crashes_dir(self):
+        """Browse for crashes directory"""
+        directory = filedialog.askdirectory(title="Select Crashes Directory")
+        if directory:
+            self.crashes_dir_entry.delete(0, tk.END)
+            self.crashes_dir_entry.insert(0, directory)
+
+            # Update crash handler with new directory
+            self.crash_handler = CrashHandler(directory)
+
+            # Update debugger with new directory
+            self.debugger.afl_output_dir = directory
+
+            # Refresh the crashes list
+            self.refresh_crashes()
+
     def update_status(self, message):
         """Update status bar message"""
         self.status_label.configure(text=f"Status: {message}")
@@ -419,6 +453,7 @@ class PyDFuzzGUI(ctk.CTk):
         # Find and terminate the AFL process
         try:
             import signal
+
             import psutil
 
             # Look for afl-fuzz process
@@ -476,7 +511,15 @@ class PyDFuzzGUI(ctk.CTk):
             widget.destroy()
 
         # Get crashes from crash handler
-        crashes_dir = self.fuzz_executor.output_crashes_dir
+        crashes_dir = self.crashes_dir_entry.get()
+
+        # Update crash handler with current directory
+        if crashes_dir != self.crash_handler.output_dir:
+            self.crash_handler = CrashHandler(crashes_dir)
+
+            # Also update debugger
+            self.debugger.afl_output_dir = crashes_dir
+
         self.crashes_list = self.crash_handler.get_crash_files()
 
         if not self.crashes_list:
